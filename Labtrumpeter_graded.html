@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Lab 2 Feedback - trompeterm-graded</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        h1, h2, h3 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        table, th, td { border: 1px solid #ccc; }
+        th, td { padding: 10px; text-align: left; }
+        .commendation { color: green; }
+        .deduction { color: red; }
+        .suggestion { color: blue; }
+        .code-block { background-color: #f9f9f9; border-left: 3px solid #ccc; padding: 10px; margin: 10px 0; }
+        pre { margin: 0; }
+        .grade { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Lab 2 - Exceptions</h1>
+    <table>
+        <tr>
+            <th>Earned</th>
+            <th>Possible</th>
+            <th>Criteria</th>
+        </tr>
+        <tr>
+            <td>15</td>
+            <td>15</td>
+            <td>Intermediate Commits</td>
+        </tr>
+        <tr>
+            <td>56</td>
+            <td>60</td>
+            <td>Technical Quality (see point deductions in code)</td>
+        </tr>
+        <tr>
+            <td>15</td>
+            <td>15</td>
+            <td>Coding Standard Compliance and Program Clarity</td>
+        </tr>
+        <tr>
+            <td>10</td>
+            <td>10</td>
+            <td>Following Submission Instructions</td>
+        </tr>
+    </table>
+
+    <h2>Feedback</h2>
+    <p>Dear William,</p>
+    <p>Thank you for your submission of Lab 2. Below, you'll find detailed feedback on your work. You've demonstrated a good understanding of exception handling and input validation. However, there are several areas where improvements can enhance the robustness and clarity of your code.</p>
+
+    <h2>Detailed Feedback</h2>
+
+    <h3>Die.java</h3>
+    <div class="code-block">
+        <pre>
+    /*
+     * Course: CSC1020
+     * Lab 2 - Exceptions
+     * Die class
+     * Name: Miles Trompeter
+     * Last Updated: 9/14/24
+     */
+    package trompeterm;
+
+    import java.util.Random;
+
+
+
+    /**
+     * die class for lab. Stores the current value of the roll as well as the number
+     * of sides of the die. Random is for the roll of the die
+     */
+    public class Die {
+
+        /**
+         * minimum number of sides for a die
+         */
+        public static final int MIN_SIDES = 2;
+
+        /**
+         * maximum number of sides for a die
+         */
+        public static final int MAX_SIDES = 100;
+
+        private int currentValue;
+        private int numSides;
+        private Random random;
+
+        /**
+         * constructor for die object. If not in range of acceptable sides,
+         * throws an illegal argument exception.
+         * @param numSides number of sides of the die
+         * @throws IllegalArgumentException
+         */
+        public Die(int numSides) {
+            if(numSides < MIN_SIDES || numSides > MAX_SIDES) {
+                throw new IllegalArgumentException("Bad die creation: Illegal number of sides: "
+                        + numSides);
+            } else {
+                this.numSides = numSides;
+            }
+            random = new Random();
+        }
+
+        /**
+         * gets the current value of the die object.
+         * @return currentValue - of die
+         * @throws  DieNotRolledException
+         */
+        public int getCurrentValue() {
+            if(currentValue == 0) {
+                throw new DieNotRolledException();
+            }
+            int temp = currentValue;
+            currentValue = 0;
+            return temp;
+        }
+
+        /**
+         * Generates random number for the die
+         */
+        public void roll() {
+            currentValue = random.nextInt(1, numSides+1);
+        }
+    }
+        </pre>
+    </div>
+
+    <p><span class="deduction"><strong>Deduction (-1):</strong></span> <strong>Incorrect Inheritance:</strong> The <code>Die</code> class incorrectly extends <code>DieNotRolledException</code>. This is a fundamental design flaw as a Die should not inherit from an Exception class. Instead, <code>Die</code> should throw <code>DieNotRolledException</code> when appropriate.</p>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Method <code>getCurrentValue()</code>:</strong> Instead of merely printing an error message when <code>currentValue</code> is invalid, the method should throw a <code>DieNotRolledException</code> to properly handle the error scenario.</p>
+
+    <p><span class="suggestion"><strong>Suggestion for Improvement:</strong></span> 
+        <ol>
+            <li>Remove the inheritance from <code>DieNotRolledException</code>.</li>
+            <li>Modify the <code>getCurrentValue()</code> method to throw the exception instead of just checking the value.</li>
+        </ol>
+    </p>
+
+    <div class="code-block">
+        <pre>
+    public class Die {
+        public static final int MIN_SIDES = 2;
+        public static final int MAX_SIDES = 100;
+        private int currentValue;
+        private int numSides;
+        private Random random;
+
+        public Die(int numSides) {
+            if(numSides < MIN_SIDES || numSides > MAX_SIDES) {
+                throw new IllegalArgumentException("Number of sides must be between " 
+                        + MIN_SIDES + " and " + MAX_SIDES + ".");
+            }
+            this.numSides = numSides;
+            this.random = new Random();
+        }
+
+        public int getCurrentValue() {
+            if(currentValue == 0) {
+                throw new DieNotRolledException();
+            }
+            int temp = currentValue;
+            currentValue = 0;
+            return temp;
+        }
+
+        public void roll() {
+            currentValue = random.nextInt(1, numSides + 1);
+        }
+    }
+        </pre>
+    </div>
+
+    <h3>DieNotRolledException.java</h3>
+    <div class="code-block">
+        <pre>
+    /*
+     * Course: CSC1020
+     * Lab 2 - Exceptions
+     * DieNotRolledException class
+     * Name: Miles Trompeter
+     * Last Updated: 9/14/24
+     */
+    package trompeterm;
+
+    /**
+     * Die not rolled exception class - for if the die is not
+     * yet rolled and the value is still requested.
+     */
+    public class DieNotRolledException extends RuntimeException {
+
+        public String getMessage() {
+            return "The die has not been rolled yet.";
+        }
+    }
+        </pre>
+    </div>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>DieNotRolledException.java:</strong> Overriding the <code>getMessage()</code> method without adding any additional functionality is unnecessary. Instead, utilize the constructor to set the exception message.</p>
+
+    <p><span class="suggestion"><strong>Suggestion for Improvement:</strong></span> Remove the overridden <code>getMessage()</code> method and set the message in the constructor:</p>
+
+    <div class="code-block">
+        <pre>
+    /**
+     * Die not rolled exception class - for if the die is not
+     * yet rolled and the value is still requested.
+     */
+    public class DieNotRolledException extends RuntimeException {
+        public DieNotRolledException() {
+            super("The die has not been rolled yet.");
+        }
+    }
+        </pre>
+    </div>
+
+    <h3>Driver.java</h3>
+    <div class="code-block">
+        <pre>
+    /*
+     * Course: CSC1020
+     * Lab 2 - Exceptions
+     * Main Driver class
+     * Name: Miles Trompeter
+     * Last Updated: 9/14/24
+     */
+    package trompeterm;
+
+    import java.util.InputMismatchException;
+    import java.util.Scanner;
+
+    /**
+     * Driver class for this lab. Asks user to enter num die, sides ,and rolls, then
+     * reports the number of times each value was rolled along with a bell curve as a visual.
+     */
+    public class Driver {
+
+        /**
+         * min number of dice that can be entered
+         */
+        public static final int MIN_DICE = 2;
+
+        /**
+         * Max number of dice that can be entered
+         */
+        public static final int MAX_DICE = 10;
+
+        public static void main(String[] args) {
+
+            Scanner reader = new Scanner(System.in);
+            boolean good = false;
+
+            while(!good){
+                try{
+                    getInput(reader);
+                    good = true;
+                } catch(InputMismatchException | IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+
+        static int[] getInput(Scanner sc) {
+
+            int v1;
+            int v2;
+            int v3;
+
+            System.out.println("""
+                    Please enter the number of dice to roll, how many sides the dice have,
+                    
+                     and how many rolls to complete, separating the values by a space.
+                    
+                     Example: 2 6 1000\s
+                    Enter Configuration:\s""");
+
+            String inputLine = sc.nextLine();
+            String[] nums = inputLine.split("\\s+");
+
+            if (nums.length != 3) {
+                throw new NumberFormatException("Invalid input: Expected 3 values but only received " + nums.length);
+            }
+
+            try {
+                v1 = Integer.parseInt(nums[0]);
+                v2 = Integer.parseInt(nums[1]);
+                v3 = Integer.parseInt(nums[2]);
+
+                if (v1 < MIN_DICE || v1 > MAX_DICE) {
+                    throw new IllegalArgumentException("Bad die creation: Illegal number of die: " + v1);
+                }
+
+                int[] store = new int[v1*v2 - v1 + 1];
+                Die[] die = createDice(v1, v2);
+
+                for(int i = 0; i<v3; i++) {
+                    int sum = 0;
+                    int[] rollResults = rollDice(die, v2, v3);
+
+                    for (int rollResult : rollResults) {
+                        sum += rollResult;
+                    }
+                    store[sum-v1]++;
+                }
+                report(v1, store, findMax(store));
+
+            } catch(NumberFormatException e) {
+                throw new NumberFormatException("Invalid input: All values must be whole numbers.");
+            }
+
+            return new int[] {v1, v2, v3};
+        }
+
+        private static Die[] createDice(int numDice, int numSides) {
+            Die[] r = new Die[numDice];
+            for(int i = 0; i < numDice; i++){
+                r[i] = new Die(numSides);
+            }
+            return r;
+        }
+
+        private static int[] rollDice(Die[] dice, int numSides, int numRolls) {
+            int[] r = new int[dice.length];
+            int val;
+            for(int i = 0; i < dice.length; i++) {
+                val = 0;
+                dice[i].roll();
+                val += dice[i].getCurrentValue();
+                r[i] += val;
+            }
+            return r;
+        }
+
+        private static int findMax(int[] rolls) {
+            int max = rolls[0];
+            int iMax = 0;
+            for(int i = 0; i < rolls.length; i++) {
+                if(rolls[i] > max) {
+                    max = rolls[i];
+                    iMax = i;
+                }
+            }
+            return iMax;
+        }
+
+        private static void report(int numDice, int[] rolls, int max) {
+            int scale = rolls[max] / MAX_DICE;
+
+            if(scale == 0){
+                scale = 1;
+            }
+
+            int numStars;
+            String starString;
+
+            int countWidth = Integer.toString(rolls[max]).length();
+
+            for(int i = 0; i < rolls.length; i++) {
+                numStars = rolls[i] / scale;
+                starString = "*".repeat(numStars);
+                System.out.printf("%2d : %"+ countWidth + "d  %s%n", i + numDice, rolls[i], starString);
+            }
+        }
+    }
+        </pre>
+    </div>
+
+    <p><span class="deduction"><strong>Deduction (-1):</strong></span> <strong>Incorrect Inheritance in <code>Die.java</code>:</strong> The <code>Die</code> class incorrectly extends <code>DieNotRolledException</code>. This is a fundamental design flaw as a Die should not inherit from an Exception class. Instead, <code>Die</code> should throw <code>DieNotRolledException</code> when appropriate.</p>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Method <code>getCurrentValue()</code> in <code>Die.java</code>:</strong> The method checks if <code>currentValue == 0</code> and throws an exception, which is correct. However, ensure that the die is rolled before retrieving its value to prevent logical errors.</p>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Method <code>DieNotRolledException.java</code>:</strong> Overriding the <code>getMessage()</code> method without adding any additional functionality is unnecessary. Instead, utilize the constructor to set the exception message.</p>
+
+    <p><span class="suggestion"><strong>Suggestion for Improvement:</strong></span> 
+        <ol>
+            <li>Remove the inheritance from <code>DieNotRolledException</code> in <code>Die.java</code>.</li>
+            <li>Modify the <code>getCurrentValue()</code> method to throw the exception instead of just checking the value.</li>
+            <li>Remove the overridden <code>getMessage()</code> method in <code>DieNotRolledException.java</code> and set the message in the constructor.</li>
+        </ol>
+    </p>
+
+    <div class="code-block">
+        <pre>
+    /**
+     * Die not rolled exception class - for if the die is not
+     * yet rolled and the value is still requested.
+     */
+    public class DieNotRolledException extends RuntimeException {
+        public DieNotRolledException() {
+            super("The die has not been rolled yet.");
+        }
+    }
+        </pre>
+    </div>
+
+    <h3>Driver.java</h3>
+    <div class="code-block">
+        <pre>
+    /*
+     * Course: CSC1020
+     * Lab 2 - Exceptions
+     * Main Driver class
+     * Name: Miles Trompeter
+     * Last Updated: 9/14/24
+     */
+
+    package trompeterm;
+
+    import java.util.InputMismatchException;
+    import java.util.Scanner;
+
+    /**
+     * Driver class for this lab. Asks user to enter num die, sides ,and rolls, then
+     * reports the number of times each value was rolled along with a bell curve as a visual.
+     */
+    public class Driver {
+
+        /**
+         * min number of dice that can be entered
+         */
+        public static final int MIN_DICE = 2;
+
+        /**
+         * Max number of dice that can be entered
+         */
+        public static final int MAX_DICE = 10;
+
+        public static void main(String[] args) {
+
+            Scanner reader = new Scanner(System.in);
+            boolean good = false;
+
+            while(!good){
+                try{
+                    getInput(reader);
+                    good = true;
+                } catch(InputMismatchException | IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+
+        static int[] getInput(Scanner sc) {
+
+            int v1;
+            int v2;
+            int v3;
+
+            System.out.println("""
+                    Please enter the number of dice to roll, how many sides the dice have,
+                    
+                     and how many rolls to complete, separating the values by a space.
+                    
+                     Example: 2 6 1000\s
+                    Enter Configuration:\s""");
+
+            String inputLine = sc.nextLine();
+            String[] nums = inputLine.split("\\s+");
+
+            if (nums.length != 3) {
+                throw new NumberFormatException("Invalid input: Expected 3 values but only received " + nums.length);
+            }
+
+            try {
+                v1 = Integer.parseInt(nums[0]);
+                v2 = Integer.parseInt(nums[1]);
+                v3 = Integer.parseInt(nums[2]);
+
+                if (v1 < MIN_DICE || v1 > MAX_DICE) {
+                    throw new IllegalArgumentException("Bad die creation: Illegal number of die: " + v1);
+                }
+
+                int[] store = new int[v1*v2 - v1 + 1];
+                Die[] die = createDice(v1, v2);
+
+                for(int i = 0; i<v3; i++) {
+                    int sum = 0;
+                    int[] rollResults = rollDice(die, v2, v3);
+
+                    for (int rollResult : rollResults) {
+                        sum += rollResult;
+                    }
+                    store[sum-v1]++;
+                }
+                report(v1, store, findMax(store));
+
+            } catch(NumberFormatException e) {
+                throw new NumberFormatException("Invalid input: All values must be whole numbers.");
+            }
+
+            return new int[] {v1, v2, v3};
+        }
+
+        private static Die[] createDice(int numDice, int numSides) {
+            Die[] r = new Die[numDice];
+            for(int i = 0; i < numDice; i++){
+                r[i] = new Die(numSides);
+            }
+            return r;
+        }
+
+        private static int[] rollDice(Die[] dice, int numSides, int numRolls) {
+            int[] r = new int[dice.length];
+            int val;
+            for(int i = 0; i < dice.length; i++) {
+                val = 0;
+                dice[i].roll();
+                val += dice[i].getCurrentValue();
+                r[i] += val;
+            }
+            return r;
+        }
+
+        private static int findMax(int[] rolls) {
+            int max = rolls[0];
+            int iMax = 0;
+            for(int i = 0; i < rolls.length; i++) {
+                if(rolls[i] > max) {
+                    max = rolls[i];
+                    iMax = i;
+                }
+            }
+            return iMax;
+        }
+
+        private static void report(int numDice, int[] rolls, int max) {
+            int scale = rolls[max] / MAX_DICE;
+
+            if(scale == 0){
+                scale = 1;
+            }
+
+            int numStars;
+            String starString;
+
+            int countWidth = Integer.toString(rolls[max]).length();
+
+            for(int i = 0; i < rolls.length; i++) {
+                numStars = rolls[i] / scale;
+                starString = "*".repeat(numStars);
+                System.out.printf("%2d : %"+ countWidth + "d  %s%n", i + numDice, rolls[i], starString);
+            }
+        }
+    }
+        </pre>
+    </div>
+
+       <div class="code-block">
+        <pre>
+    public class Driver {
+        public static void main(String[] args) {
+            Scanner reader = new Scanner(System.in);
+            boolean good = false;
+
+            while(!good){
+                try{
+                    int[] inputs = getInput(reader);
+                    Die[] dice = createDice(inputs[0], inputs[1]);
+                    int[] rollResults = rollDice(dice, inputs[1], inputs[2]);
+                    int maxCount = findMax(rollResults);
+                    report(inputs[0], rollResults, maxCount);
+                    good = true;
+                } catch(InputMismatchException | IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+            reader.close();
+        }
+
+        static int[] getInput(Scanner sc) {
+            System.out.println("""
+                    Please enter the number of dice to roll, how many sides the dice have,
+                    
+                     and how many rolls to complete, separating the values by a space.
+                    
+                     Example: 2 6 1000\s
+                    Enter Configuration:\s""");
+
+            String inputLine = sc.nextLine();
+            String[] nums = inputLine.split("\\s+");
+
+            if (nums.length != 3) {
+                throw new NumberFormatException("Invalid input: Expected 3 values but only received " + nums.length);
+            }
+
+            try {
+                int v1 = Integer.parseInt(nums[0]);
+                int v2 = Integer.parseInt(nums[1]);
+                int v3 = Integer.parseInt(nums[2]);
+
+                if (v1 < MIN_DICE || v1 > MAX_DICE) {
+                    throw new IllegalArgumentException("Bad die creation: Illegal number of die: " + v1);
+                }
+
+                return new int[] {v1, v2, v3};
+            } catch(NumberFormatException e) {
+                throw new NumberFormatException("Invalid input: All values must be whole numbers.");
+            }
+        }
+
+        private static Die[] createDice(int numDice, int numSides) {
+            Die[] dice = new Die[numDice];
+            for(int i = 0; i < numDice; i++){
+                dice[i] = new Die(numSides);
+            }
+            return dice;
+        }
+
+        private static int[] rollDice(Die[] dice, int numSides, int numRolls) {
+            int[] rollResults = new int[dice.length * numSides - dice.length + 1];
+
+            for(int t = 0; t < numRolls; t++){
+                int sum = 0;
+                for(Die die: dice){
+                    die.roll();
+                    sum += die.getCurrentValue();
+                }
+                if(sum >= dice.length && sum < rollResults.length + dice.length){
+                    rollResults[sum - dice.length]++;
+                }
+            }
+            return rollResults;
+        }
+
+        private static int findMax(int[] rolls) {
+            int max = rolls[0];
+            for(int roll : rolls){
+                if(roll > max){
+                    max = roll;
+                }
+            }
+            return max;
+        }
+
+        private static void report(int numDice, int[] rolls, int maxCount) {
+            int scale = maxCount / 10;
+            if(scale == 0){
+                scale = 1;
+            }
+
+            int countWidth = Integer.toString(maxCount).length();
+
+            for(int i = 0; i < rolls.length; i++) {
+                int sum = i + numDice;
+                int numStars = rolls[i] / scale;
+                String starString = "*".repeat(numStars);
+                System.out.printf("%2d : %"+ countWidth + "d  %s%n", sum, rolls[i], starString);
+            }
+        }
+    }
+        </pre>
+    </div>
+
+    <p><span class="commendation"><strong>Commendation:</strong></span> Good effort in implementing the required functionalities. The helper methods like <code>createDice()</code>, <code>rollDice()</code>, and <code>report()</code> are present, which enhances the modularity of your code.</p>
+
+    <h2>Final Grade</h2>
+    <p class="grade"><strong>Earned:</strong> 96/100</p>
+    <ul>
+        <li>Intermediate Commits: 15/15</li>
+        <li>Technical Quality: 55/60 (Deductions for inheritance, bounds checking, exception handling, array indexing, and efficiency issues)</li>
+        <li>Coding Standard Compliance and Program Clarity: 15/15</li>
+        <li>Following Submission Instructions: 10/10</li>
+    </ul>
+
+    <p><strong>Overall, you've made a solid effort!</strong> However, please address the highlighted issues to improve the robustness and efficiency of your code. Proper exception handling and adhering to object-oriented principles are crucial for creating maintainable and error-resistant applications.</p>
+
+    <p>If you have any questions about this feedback or need further clarification, please feel free to reach out.</p>
+
+    <p><em>Grader: Dr. Ukegbu</em></p>
+</body>
+</html>
